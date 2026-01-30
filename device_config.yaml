@@ -1,0 +1,8 @@
+device_interface:
+  baudrate: 38400
+  port: "COM3"
+
+device_const:
+  GN: true
+  BD: true
+  SB: false

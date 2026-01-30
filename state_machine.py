@@ -1,25 +1,31 @@
 import serial
 import time
+import yaml
+
 
 class StateMachine:
     def __init__(self, initial_state: str = "IDLE"):
         # Member to track the device's status
         self.current_state = initial_state
-        self.serial_interface = None
+        self.device_manager = None
+        config_data = self.read_config_file('state_machine_config.yaml')
 
 
-    def prepare(self):
-        self.open_serial_port('COM3')
-
-
-    def start(self):
-        while(True):
-            print("Read data")
-            str = "bla bla"
-            ret = self.handle_message(str) 
-            print(ret)
-            time.sleep(2)
-
+    def read_config_file(self, file_path: str):
+        try:
+            with open(file_path, 'r') as file:
+                # yaml.safe_load is the secure way to load YAML data
+                data = yaml.safe_load(file)
+                return data
+        except FileNotFoundError:
+            print("Error: The file was not found.")
+        except yaml.YAMLError as e:
+            print(f"Error parsing YAML: {e}")
+     
+       
+    #def prepare(self):
+    #def start(self):
+        
 
     def handle_message(self, msg: str):
         match self.current_state:
@@ -33,28 +39,4 @@ class StateMachine:
                 return "Unknown command!"
         
 
-    def open_serial_port(self, port_name: str, baudrate: int = 38400):
-        """
-        Tries to open a serial port and handles common error cases.
-        Returns the serial object if successful, None otherwise.
-        """
-        try:
-            # attempt to open the port
-            self.serial_interface = serial.Serial(port_name, baudrate, timeout=1)
-            print(f"Successfully opened {port_name} at {baudrate} baud.")
  
-
-        except serial.SerialException as e:
-            if "PermissionError" in str(e):
-                print(f"Error: Access denied to {port_name}. Try running as admin or closing other apps.")
-            elif "FileNotFoundError" in str(e) or "does not exist" in str(e):
-                print(f"Error: The port {port_name} was not found. Check your connection.")
-            else:
-                # This catches 'Port is already open' or 'Resource busy'
-                print(f"Error: Could not open {port_name}. It might be in use by another program.")
-                print(f"Details: {e}")
-                
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-
-
