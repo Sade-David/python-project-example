@@ -1,5 +1,5 @@
 from pyubx2 import ubxhelpers
-
+import math
 
 def hex_string_to_bytes(hex_str: str) -> str:
     """
@@ -22,3 +22,25 @@ def bytes_string_to_hex(byte_str: str) -> str:
 
 def calc_checksum(msg_data: str) -> str:
     return ubxhelpers.calc_checksum(msg_data)
+
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    """
+    Calculates the distance between two WGS84 points in meters.
+    """
+    # Earth's radius in meters
+    R = 6371000 
+
+    # Convert degrees to radians
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+
+    # Haversine formula
+    a = math.sin(dphi / 2)**2 + \
+        math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2)**2
+    
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    distance = R * c
+    return distance
